@@ -1,5 +1,0 @@
-17:44:17.051 [main] INFO  apicuron - Initialize neo4j
-17:44:19.737 [main] INFO  apicuron - Query curation reports from neo4j
-17:44:20.875 [main] INFO  apicuron - Serialize curation reports to required format
-17:44:20.979 [main] INFO  apicuron - Sending POST request to https://dev.apicuron.org/api/reports/bulk
-17:44:28.067 [main] ERROR apicuron - APICURON rejected bulk request ==> 404
