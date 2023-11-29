@@ -1,6 +1,5 @@
 package org.reactome.server.tools;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -10,12 +9,11 @@ import org.reactome.server.graph.utils.ReactomeGraphCore;
 import org.reactome.server.tools.model.CurationReport;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class TestExporter {
+public class ExporterTest {
 
     public static AdvancedDatabaseObjectService advanced;
     public Collection<CurationReport> reports;
