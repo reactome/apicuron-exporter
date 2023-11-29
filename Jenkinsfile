@@ -15,7 +15,7 @@ pipeline {
 
     stages {
         // This stage checks that upstream project 'DiagramConverter' was run successfully.
-        stage('Check DiagramConverter build succeeded') {
+        stage('Check GenerateGraphDatabaseAndAnalysisCore build succeeded') {
             steps {
                 script {
                     utils.checkUpstreamBuildsSucceeded("GenerateGraphDatabaseAndAnalysisCore")
@@ -26,7 +26,7 @@ pipeline {
         stage('Setup: Build jar file') {
             steps {
                 script {
-                    sh "mvn clean package"
+                    sh "mvn clean package -PReactome-Server"
                 }
             }
         }
