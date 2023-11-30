@@ -34,7 +34,6 @@ public class Main {
     public static final String VERBOSE = "verbose";
     public static final String PROD = "prod";
 
-    public static AdvancedDatabaseObjectService advanced;
 
     public static final String SERVER = "https://apicuron.org";
     public static final String DEV_SERVER = "https://dev.apicuron.org";
@@ -42,6 +41,7 @@ public class Main {
     public static final ObjectMapper mapper = new ObjectMapper();
     public static final HttpClient client = HttpClient.newHttpClient();
     public static final Logger log = LoggerFactory.getLogger("apicuron");
+    public static AdvancedDatabaseObjectService advanced;
 
     public static void main(String[] args) throws JSAPException, CustomQueryException, IOException, InterruptedException {
 

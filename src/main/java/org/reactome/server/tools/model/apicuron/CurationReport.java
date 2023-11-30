@@ -41,5 +41,4 @@ public class CurationReport implements CustomQuery {
 
         return report;
     }
-
 }
