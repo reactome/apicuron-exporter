@@ -1,4 +1,4 @@
-package org.reactome.server.tools.model;
+package org.reactome.server.tools.model.apicuron;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;

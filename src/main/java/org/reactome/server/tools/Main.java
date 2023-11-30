@@ -6,18 +6,22 @@ import com.martiansoftware.jsap.*;
 import org.reactome.server.graph.exception.CustomQueryException;
 import org.reactome.server.graph.service.AdvancedDatabaseObjectService;
 import org.reactome.server.graph.utils.ReactomeGraphCore;
-import org.reactome.server.tools.model.CurationReport;
-import org.reactome.server.tools.model.ReportsSubmission;
+import org.reactome.server.tools.model.apicuron.CurationReport;
+import org.reactome.server.tools.model.input.ReactomeCurators;
+import org.reactome.server.tools.model.apicuron.ReportsSubmission;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.net.URI;
+import java.net.URL;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Hello world!
@@ -43,11 +47,14 @@ public class Main {
 
         final JSAPResult config = defineParameters(args);
 
+        log.info("Determine whitelist from resource file curators.json");
+        List<String> whitelist = extractWhitelistedOrcid();
+
         log.info("Initialize neo4j");
         initializeNeo4j(config);
 
         log.info("Query curation reports from neo4j");
-        Collection<CurationReport> reports = queryCurationReports();
+        Collection<CurationReport> reports = queryCurationReports(whitelist);
 
         log.info("Serialize curation reports to required format");
         String body = formatBody(reports);
@@ -73,6 +80,14 @@ public class Main {
         }
     }
 
+    public static List<String> extractWhitelistedOrcid() throws IOException {
+        URL url = Main.class.getResource("/curators.json");
+        return mapper.readValue(url, ReactomeCurators.class)
+                .getCurrent().stream()
+                .map(ReactomeCurators.Curator::getOrcid)
+                .collect(Collectors.toList());
+    }
+
     private static JSAPResult defineParameters(String[] args) throws JSAPException {
         final Parameter[] parameters = {
                 new FlaggedOption(HOST, JSAP.STRING_PARSER, "bolt://localhost:7687", JSAP.NOT_REQUIRED, 'h', HOST, "The neo4j host"),
@@ -89,8 +104,8 @@ public class Main {
         return config;
     }
 
-    public static Collection<CurationReport> queryCurationReports() throws CustomQueryException {
-        return advanced.getCustomQueryResults(CurationReport.class, CurationReport.QUERY);
+    public static Collection<CurationReport> queryCurationReports(List<String> whitelist) throws CustomQueryException {
+        return advanced.getCustomQueryResults(CurationReport.class, CurationReport.QUERY, Map.of("whitelist", whitelist));
     }
 
     public static String formatBody(Collection<CurationReport> reports) throws JsonProcessingException {

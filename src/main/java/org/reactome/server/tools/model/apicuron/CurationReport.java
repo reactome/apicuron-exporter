@@ -1,4 +1,4 @@
-package org.reactome.server.tools.model;
+package org.reactome.server.tools.model.apicuron;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
@@ -19,7 +19,7 @@ public class CurationReport implements CustomQuery {
     // language=cypher
     public final static String QUERY = " " +
             "MATCH (per:Person)-[:author]->(ie:InstanceEdit)-[r:authored|reviewed]->(e:Event) " +
-            "WHERE per.orcidId IS NOT NULL " +
+            "WHERE per.orcidId IN $whitelist " +
             "RETURN per.orcidId AS orcid, ie.dateTime AS time, type(r) AS activity, e.stId AS stId, e:Pathway AS isPathway; ";
 
     private String timestamp;
