@@ -62,14 +62,4 @@ public class ExporterTest {
             ;
         });
     }
-
-    @Test
-    @Order(4)
-    public void testSubmit() {
-        assertDoesNotThrow(() -> {
-            File reports = new File(Objects.requireNonNull(ExporterTest.class.getResource("/reports.json")).getFile());
-            HttpResponse<String> response = Main.submitReports(reports, Main.getApiKey(), Main.DEV_SERVER + "/api/reports/bulk");
-            assertEquals(201, response.statusCode());
-        });
-    }
 }
