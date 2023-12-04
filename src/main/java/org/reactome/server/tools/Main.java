@@ -66,16 +66,7 @@ public class Main {
 
 
         log.info("Sending POST request to {}", url);
-        HttpResponse<String> response = client.send(
-                HttpRequest.newBuilder()
-                        .POST(HttpRequest.BodyPublishers.ofFile(output.toPath()))
-                        .header("version", "2")
-                        .header("Content-Type", "multipart/form-data")
-                        .header("authorization", "bearer " + key)
-                        .uri(URI.create(url))
-                        .build(),
-                HttpResponse.BodyHandlers.ofString()
-        );
+        HttpResponse<String> response = submitReports(output, key, url);
 
         if (response.statusCode() == 201) {
             log.info("APICURON accepted bulk request");
@@ -104,9 +95,8 @@ public class Main {
         return config;
     }
 
-    private static String getApiKey() throws FileNotFoundException {
-        String key = new Scanner(new File(Objects.requireNonNull(Main.class.getResource("/apicuron.key")).getFile())).next();
-        return key;
+    public static String getApiKey() throws FileNotFoundException {
+        return new Scanner(new File(Objects.requireNonNull(Main.class.getResource("/apicuron.key")).getFile())).next();
     }
 
     public static List<String> extractWhitelistedOrcid() throws IOException {
@@ -115,6 +105,11 @@ public class Main {
                 .getCurrent().stream()
                 .map(ReactomeCurators.Curator::getOrcid)
                 .collect(Collectors.toList());
+    }
+
+    public static void initializeNeo4j(JSAPResult config) {
+        ReactomeGraphCore.initialise(config.getString(HOST), config.getString(USER), config.getString(PASSWORD), config.getString(NAME));
+        advanced = ReactomeGraphCore.getService(AdvancedDatabaseObjectService.class);
     }
 
     public static Collection<CurationReport> queryCurationReports(List<String> whitelist) throws CustomQueryException {
@@ -130,8 +125,16 @@ public class Main {
         mapper.writeValue(output, reportsSubmission);
     }
 
-    public static void initializeNeo4j(JSAPResult config) {
-        ReactomeGraphCore.initialise(config.getString(HOST), config.getString(USER), config.getString(PASSWORD), config.getString(NAME));
-        advanced = ReactomeGraphCore.getService(AdvancedDatabaseObjectService.class);
+    public static HttpResponse<String> submitReports(File output, String key, String url) throws IOException, InterruptedException {
+        return client.send(
+                HttpRequest.newBuilder()
+                        .POST(HttpRequest.BodyPublishers.ofFile(output.toPath()))
+                        .header("version", "2")
+                        .header("Content-Type", "multipart/form-data")
+                        .header("authorization", "bearer " + key)
+                        .uri(URI.create(url))
+                        .build(),
+                HttpResponse.BodyHandlers.ofString()
+        );
     }
 }

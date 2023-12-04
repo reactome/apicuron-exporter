@@ -9,10 +9,13 @@ import org.reactome.server.graph.utils.ReactomeGraphCore;
 import org.reactome.server.tools.model.apicuron.CurationReport;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.http.HttpResponse;
 import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
 public class ExporterTest {
 
@@ -28,6 +31,7 @@ public class ExporterTest {
         whitelist = new HashSet<>(Main.extractWhitelistedOrcid());
         reports = advanced.getCustomQueryResults(CurationReport.class, CurationReport.QUERY, Map.of("whitelist", whitelist));
     }
+
     @Test
     @Order(1)
     public void testWhitelist() {
@@ -36,7 +40,7 @@ public class ExporterTest {
 
     @Test
     @Order(2)
-    public void testReports()  {
+    public void testReports() {
         assertFalse(reports.isEmpty());
         Set<String> allowedTerms = Set.of("authored-pathway", "authored-reaction", "reviewed-pathway", "reviewed-reaction");
 
@@ -54,7 +58,18 @@ public class ExporterTest {
     public void testSerialization() {
         assertDoesNotThrow(() -> {
             File reports = File.createTempFile("report", ".json");
-            Main.writeReports(ExporterTest.reports, reports);;
+            Main.writeReports(ExporterTest.reports, reports);
+            ;
+        });
+    }
+
+    @Test
+    @Order(4)
+    public void testSubmit() {
+        assertDoesNotThrow(() -> {
+            File reports = new File(Objects.requireNonNull(ExporterTest.class.getResource("/reports.json")).getFile());
+            HttpResponse<String> response = Main.submitReports(reports, Main.getApiKey(), Main.DEV_SERVER + "/api/reports/bulk");
+            assertEquals(201, response.statusCode());
         });
     }
 }
