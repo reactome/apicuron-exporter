@@ -1,6 +1,5 @@
 package org.reactome.server.tools;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.martiansoftware.jsap.*;
 import org.reactome.server.graph.exception.CustomQueryException;
@@ -12,25 +11,25 @@ import org.reactome.server.tools.model.apicuron.ReportsSubmission;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
-/**
- * Hello world!
- */
+
 public class Main {
     public static final String HOST = "host";
     public static final String NAME = "name";
     public static final String USER = "user";
     public static final String PASSWORD = "password";
+    public static final String OUTPUT = "output";
     public static final String VERBOSE = "verbose";
     public static final String PROD = "prod";
 
@@ -57,35 +56,33 @@ public class Main {
         Collection<CurationReport> reports = queryCurationReports(whitelist);
 
         log.info("Serialize curation reports to required format");
-        String body = formatBody(reports);
+
+        File output = new File(config.getString(OUTPUT));
+        writeReports(reports, output);
 
         String server = config.getBoolean(PROD) ? SERVER : DEV_SERVER;
         String url = server + "/api/reports/bulk";
 
+
         log.info("Sending POST request to {}", url);
-        HttpResponse<Void> response = client.send(
+        HttpResponse<String> response = client.send(
                 HttpRequest.newBuilder()
-                        .POST(HttpRequest.BodyPublishers.ofString(body))
+                        .POST(HttpRequest.BodyPublishers.ofFile(output.toPath()))
+                        .header("version", "2")
+                        .header("Content-Type", "multipart/form-data")
                         .uri(URI.create(url))
                         .build(),
-                HttpResponse.BodyHandlers.discarding()
+                HttpResponse.BodyHandlers.ofString()
         );
 
-        if (response.statusCode() == 200) {
+        if (response.statusCode() == 201) {
             log.info("APICURON accepted bulk request");
             System.exit(0);
         } else {
             log.error("APICURON rejected bulk request ==> " + response.statusCode());
+            log.error("APICURON rejected bulk request ==> " + response.body());
             System.exit(1);
         }
-    }
-
-    public static List<String> extractWhitelistedOrcid() throws IOException {
-        URL url = Main.class.getResource("/curators.json");
-        return mapper.readValue(url, ReactomeCurators.class)
-                .getCurrent().stream()
-                .map(ReactomeCurators.Curator::getOrcid)
-                .collect(Collectors.toList());
     }
 
     private static JSAPResult defineParameters(String[] args) throws JSAPException {
@@ -94,6 +91,7 @@ public class Main {
                 new FlaggedOption(NAME, JSAP.STRING_PARSER, "graph.db", JSAP.NOT_REQUIRED, 'n', NAME, "The neo4j database name"),
                 new FlaggedOption(USER, JSAP.STRING_PARSER, "neo4j", JSAP.NOT_REQUIRED, 'u', USER, "The neo4j user"),
                 new FlaggedOption(PASSWORD, JSAP.STRING_PARSER, "neo4j", JSAP.REQUIRED, 'p', PASSWORD, "The neo4j password"),
+                new FlaggedOption(OUTPUT, JSAP.STRING_PARSER, "target/reports.json", JSAP.NOT_REQUIRED, 'o', OUTPUT, "The path to the generated reports.json"),
                 new QualifiedSwitch(PROD, JSAP.BOOLEAN_PARSER, JSAP.NO_DEFAULT, JSAP.NOT_REQUIRED, 'r', PROD, "Submit request to prod APICURON server"),
                 new QualifiedSwitch(VERBOSE, JSAP.BOOLEAN_PARSER, JSAP.NO_DEFAULT, JSAP.NOT_REQUIRED, 'v', VERBOSE, "Requests verbose output")
         };
@@ -108,12 +106,13 @@ public class Main {
         return advanced.getCustomQueryResults(CurationReport.class, CurationReport.QUERY, Map.of("whitelist", whitelist));
     }
 
-    public static String formatBody(Collection<CurationReport> reports) throws JsonProcessingException {
+    public static void writeReports(Collection<CurationReport> reports, File output) throws IOException {
         ReportsSubmission reportsSubmission = ReportsSubmission.builder()
                 .reports(reports)
                 .deleteAll(List.of("reactome"))
                 .build();
-        return mapper.writeValueAsString(reportsSubmission);
+
+        mapper.writeValue(output, reportsSubmission);
     }
 
     public static void initializeNeo4j(JSAPResult config) {

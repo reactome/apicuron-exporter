@@ -1,5 +1,6 @@
 package org.reactome.server.tools.model.apicuron;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import lombok.Builder;
@@ -12,6 +13,7 @@ import java.util.Collection;
 @Builder
 @Jacksonized
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class ReportsSubmission {
     private Collection<CurationReport> reports;
     private Collection<String> deleteAll;

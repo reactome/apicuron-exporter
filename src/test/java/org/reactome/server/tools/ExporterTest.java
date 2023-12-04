@@ -8,6 +8,7 @@ import org.reactome.server.graph.service.AdvancedDatabaseObjectService;
 import org.reactome.server.graph.utils.ReactomeGraphCore;
 import org.reactome.server.tools.model.apicuron.CurationReport;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
@@ -52,8 +53,8 @@ public class ExporterTest {
     @Order(3)
     public void testSerialization() {
         assertDoesNotThrow(() -> {
-            String json = Main.formatBody(reports);
-            assertFalse(json.isBlank());
+            File reports = File.createTempFile("report", ".json");
+            Main.writeReports(ExporterTest.reports, reports);;
         });
     }
 }
