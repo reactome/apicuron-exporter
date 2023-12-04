@@ -46,6 +46,8 @@ public class Main {
 
         final JSAPResult config = defineParameters(args);
 
+        String key = getApiKey();
+
         log.info("Determine whitelist from resource file curators.json");
         List<String> whitelist = extractWhitelistedOrcid();
 
@@ -70,6 +72,7 @@ public class Main {
                         .POST(HttpRequest.BodyPublishers.ofFile(output.toPath()))
                         .header("version", "2")
                         .header("Content-Type", "multipart/form-data")
+                        .header("authorization", "bearer " + key)
                         .uri(URI.create(url))
                         .build(),
                 HttpResponse.BodyHandlers.ofString()
@@ -100,6 +103,11 @@ public class Main {
         final JSAPResult config = jsap.parse(args);
         if (jsap.messagePrinted()) System.exit(1);
         return config;
+    }
+
+    private static String getApiKey() throws FileNotFoundException {
+        String key = new Scanner(new File(Objects.requireNonNull(Main.class.getResource("/apicuron.key")).getFile())).next();
+        return key;
     }
 
     public static Collection<CurationReport> queryCurationReports(List<String> whitelist) throws CustomQueryException {
