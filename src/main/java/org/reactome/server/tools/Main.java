@@ -2,6 +2,15 @@ package org.reactome.server.tools;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.martiansoftware.jsap.*;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
+import org.apache.http.entity.mime.content.FileBody;
+import org.apache.http.entity.mime.content.StringBody;
+import org.apache.http.impl.client.HttpClients;
 import org.reactome.server.graph.exception.CustomQueryException;
 import org.reactome.server.graph.service.AdvancedDatabaseObjectService;
 import org.reactome.server.graph.utils.ReactomeGraphCore;
@@ -14,11 +23,8 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.net.URI;
 import java.net.URL;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -37,7 +43,7 @@ public class Main {
     public static final String DEV_SERVER = "https://dev.apicuron.org";
 
     public static final ObjectMapper mapper = new ObjectMapper();
-    public static final HttpClient client = HttpClient.newHttpClient();
+    public static final HttpClient client = HttpClients.createDefault();
     public static final Logger log = LoggerFactory.getLogger("apicuron");
     public static AdvancedDatabaseObjectService advanced;
 
@@ -66,14 +72,14 @@ public class Main {
 
 
         log.info("Sending POST request to {}", url);
-        HttpResponse<String> response = submitReports(output, key, url);
+        HttpResponse response = submitReports(output, key, url);
 
-        if (response.statusCode() == 201) {
+        if (response.getStatusLine().getStatusCode() == 201) {
             log.info("APICURON accepted bulk request");
             System.exit(0);
         } else {
-            log.error("APICURON rejected bulk request ==> " + response.statusCode());
-            log.error("APICURON rejected bulk request ==> " + response.body());
+            log.error("APICURON rejected bulk request ==> " + response.getStatusLine().getStatusCode());
+            log.error("APICURON rejected bulk request ==> " + response.getStatusLine().getReasonPhrase());
             System.exit(1);
         }
     }
@@ -125,15 +131,21 @@ public class Main {
         mapper.writeValue(output, reportsSubmission);
     }
 
-    public static HttpResponse<String> submitReports(File output, String key, String url) throws IOException, InterruptedException {
-        return client.send(
-                HttpRequest.newBuilder()
-                        .POST(HttpRequest.BodyPublishers.ofFile(output.toPath()))
-                        .header("version", "2")
-                        .header("authorization", "bearer " + key)
-                        .uri(URI.create(url))
-                        .build(),
-                HttpResponse.BodyHandlers.ofString()
-        );
+    public static HttpResponse submitReports(File output, String key, String url) throws IOException {
+
+        HttpPost post = new HttpPost(url);
+
+        post.setHeader("version", "2");
+        post.setHeader("authorization", "bearer " + key);
+
+        HttpEntity entity = MultipartEntityBuilder.create()
+                .setCharset(StandardCharsets.UTF_8)
+                .addPart("reports", new FileBody(output, ContentType.APPLICATION_JSON))
+                .addPart("delete_all[]", new StringBody("reactome", ContentType.TEXT_PLAIN))
+                .build();
+
+        post.setEntity(entity);
+
+        return client.execute(post);
     }
 }
