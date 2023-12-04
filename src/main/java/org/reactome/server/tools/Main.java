@@ -130,7 +130,6 @@ public class Main {
                 HttpRequest.newBuilder()
                         .POST(HttpRequest.BodyPublishers.ofFile(output.toPath()))
                         .header("version", "2")
-                        .header("Content-Type", "multipart/form-data")
                         .header("authorization", "bearer " + key)
                         .uri(URI.create(url))
                         .build(),
