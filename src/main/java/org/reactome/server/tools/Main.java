@@ -6,8 +6,8 @@ import org.reactome.server.graph.exception.CustomQueryException;
 import org.reactome.server.graph.service.AdvancedDatabaseObjectService;
 import org.reactome.server.graph.utils.ReactomeGraphCore;
 import org.reactome.server.tools.model.apicuron.CurationReport;
-import org.reactome.server.tools.model.input.ReactomeCurators;
 import org.reactome.server.tools.model.apicuron.ReportsSubmission;
+import org.reactome.server.tools.model.input.ReactomeCurators;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,7 +15,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -108,6 +107,14 @@ public class Main {
     private static String getApiKey() throws FileNotFoundException {
         String key = new Scanner(new File(Objects.requireNonNull(Main.class.getResource("/apicuron.key")).getFile())).next();
         return key;
+    }
+
+    public static List<String> extractWhitelistedOrcid() throws IOException {
+        URL url = Main.class.getResource("/curators.json");
+        return mapper.readValue(url, ReactomeCurators.class)
+                .getCurrent().stream()
+                .map(ReactomeCurators.Curator::getOrcid)
+                .collect(Collectors.toList());
     }
 
     public static Collection<CurationReport> queryCurationReports(List<String> whitelist) throws CustomQueryException {
