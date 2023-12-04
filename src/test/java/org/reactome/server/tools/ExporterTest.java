@@ -59,7 +59,6 @@ public class ExporterTest {
         assertDoesNotThrow(() -> {
             File reports = File.createTempFile("report", ".json");
             Main.writeReports(ExporterTest.reports, reports);
-            ;
         });
     }
 }

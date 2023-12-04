@@ -15,8 +15,8 @@ import java.util.Collection;
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ReportsSubmission {
-    private Collection<CurationReport> reports;
-    private Collection<String> deleteAll;
     @Builder.Default
     private String resourceId = "reactome";
+    private Collection<String> deleteAll;
+    private Collection<CurationReport> reports;
 }
