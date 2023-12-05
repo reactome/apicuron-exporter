@@ -16,7 +16,7 @@ import java.util.Set;
 import static org.junit.jupiter.api.Assertions.*;
 
 
-@SpringBootTest
+@SpringBootTest(properties = {"spring.profiles.include=test"})
 public class ExporterTest {
 
     @Autowired

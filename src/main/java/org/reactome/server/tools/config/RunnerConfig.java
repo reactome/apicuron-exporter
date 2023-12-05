@@ -18,7 +18,6 @@ public class RunnerConfig implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws CustomQueryException, IOException {
-        System.out.println("Running full exporter");
         exporter.run();
     }
 }
