@@ -1,48 +1,49 @@
 package org.reactome.server.tools;
 
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.reactome.server.graph.exception.CustomQueryException;
-import org.reactome.server.graph.service.AdvancedDatabaseObjectService;
-import org.reactome.server.graph.utils.ReactomeGraphCore;
 import org.reactome.server.tools.model.apicuron.CurationReport;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.net.http.HttpResponse;
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 
+
+@SpringBootTest
 public class ExporterTest {
 
-    public static AdvancedDatabaseObjectService advanced;
-    public static Collection<CurationReport> reports;
-    public static Set<String> whitelist = Set.of();
+    @Autowired
+    public Exporter exporter;
 
+    public List<String> whitelist = List.of("0000-0002-3699-0937", "0000-0001-5193-0855", "0000-0001-5707-3065");
+    Collection<CurationReport> reports;
 
-    @BeforeAll
-    public static void beforeAll() throws IOException, CustomQueryException {
-        ReactomeGraphCore.initialise(System.getProperty("neo4j.uri"), System.getProperty("neo4j.user"), System.getProperty("neo4j.password"), System.getProperty("neo4j.database"));
-        advanced = ReactomeGraphCore.getService(AdvancedDatabaseObjectService.class);
-        whitelist = new HashSet<>(Main.extractWhitelistedOrcid());
-        reports = advanced.getCustomQueryResults(CurationReport.class, CurationReport.QUERY, Map.of("whitelist", whitelist));
-    }
 
     @Test
     @Order(1)
-    public void testWhitelist() {
+    public void testWhitelist() throws IOException {
+        List<String> whitelist = exporter.extractWhitelistedOrcid();
         assertFalse(whitelist.isEmpty());
     }
 
     @Test
     @Order(2)
-    public void testReports() {
+    public void testReports() throws CustomQueryException {
+        reports = exporter.queryCurationReports(whitelist);
         assertFalse(reports.isEmpty());
-        Set<String> allowedTerms = Set.of("authored-pathway", "authored-reaction", "reviewed-pathway", "reviewed-reaction");
+
+        Set<String> allowedTerms = Set.of(
+                "authored-pathway", "authored-reaction",
+                "reviewed-pathway", "reviewed-reaction",
+                "deleted-reaction", "deleted-pathway"
+        );
 
         for (CurationReport report : reports) {
             assertNotNull(report.getTimestamp());
@@ -57,8 +58,8 @@ public class ExporterTest {
     @Order(3)
     public void testSerialization() {
         assertDoesNotThrow(() -> {
-            File reports = File.createTempFile("report", ".json");
-            Main.writeReports(ExporterTest.reports, reports);
+            File output = File.createTempFile("report", ".json");
+            exporter.writeReports(reports, output);
         });
     }
 }

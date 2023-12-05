@@ -26,7 +26,7 @@ pipeline {
         stage('Setup: Build jar file') {
             steps {
                 script {
-                    sh "mvn clean package -P Reactome-Server"
+                    sh "mvn clean package -P Reactome-Server,production -DskipTests"
                 }
             }
         }
@@ -36,7 +36,7 @@ pipeline {
                 script {
                     sh "mkdir -p ${env.OUTPUT_FOLDER}"
                     withCredentials([usernamePassword(credentialsId: 'neo4jUsernamePassword', passwordVariable: 'pass', usernameVariable: 'user')]) {
-                        sh "java -Xmx${env.JAVA_MEM_MAX}m -jar target/interaction-exporter-exec.jar --user $user --password $pass --prod"
+                        sh "java -Xmx${env.JAVA_MEM_MAX}m -jar target/apicuron-exporter-exec.jar"
                     }
                 }
             }

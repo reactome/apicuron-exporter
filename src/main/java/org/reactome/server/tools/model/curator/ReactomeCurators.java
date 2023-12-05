@@ -1,4 +1,4 @@
-package org.reactome.server.tools.model.input;
+package org.reactome.server.tools.model.curator;
 
 import lombok.Builder;
 import lombok.Data;

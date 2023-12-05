@@ -16,8 +16,20 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <main.class>org.reactome.server.tools.Main</main.class>
+        <main.class>org.reactome.server.tools.Application</main.class>
+        <apicuron.key>${dev.apicuron.key}</apicuron.key>
+        <apicuron.server>https://dev.apicuron.org</apicuron.server>
     </properties>
+
+    <profiles>
+        <profile>
+            <id>production</id>
+            <properties>
+                <apicuron.key>${prod.apicuron.key}</apicuron.key>
+                <apicuron.server>https://apicuron.org</apicuron.server>
+            </properties>
+        </profile>
+    </profiles>
 
     <dependencies>
         <dependency>
@@ -46,6 +58,16 @@
         </dependency>
 
         <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-validation</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <scope>provided</scope>
@@ -54,6 +76,12 @@
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>

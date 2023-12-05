@@ -18,9 +18,19 @@ public class CurationReport implements CustomQuery {
     public final static DateTimeFormatter inputFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     // language=cypher
     public final static String QUERY = " " +
+            // Creation
             "MATCH (per:Person)-[:author]->(ie:InstanceEdit)-[r:authored|reviewed]->(e:Event) " +
             "WHERE per.orcidId IN $whitelist " +
-            "RETURN per.orcidId AS orcid, ie.dateTime AS time, type(r) AS activity, e.stId AS stId, e:Pathway AS isPathway; ";
+            "RETURN per.orcidId AS orcid, ie.dateTime AS time, type(r) AS activity, e.stId AS stId, e:Pathway AS isPathway " +
+
+            "UNION " +
+
+            // Deletion
+            "MATCH (per:Person)-[:author]->(ie:InstanceEdit)-[c:created]->(d:Deleted)-[:deletedInstance]->(di:DeletedInstance) " +
+            "WHERE  " +
+            "    per.orcidId IN $whitelist AND  " +
+            "    di.clazz in ['Pathway', 'TopLevelPathway', 'CellLineagePath', 'Reaction', 'BlackBoxEvent', 'Depolymerisation', 'FailedReaction', 'Polymerisation'] " +
+            "RETURN per.orcidId AS orcid, ie.dateTime AS time, 'deleted' as activity, di.deletedStId AS stId, di.clazz in ['Pathway', 'TopLevelPathway', 'CellLineagePath'] AS isPathway";
 
     private String timestamp;
     private String activityTerm;
