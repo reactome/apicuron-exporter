@@ -11,12 +11,13 @@ import java.util.Objects;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@SpringBootTest
+@SpringBootTest(properties = {"spring.profiles.include=test"})
 public class SubmitterTest {
 
     @Autowired
     public Exporter exporter;
     @Test
+//    @Disabled
     public void testSubmit() throws IOException {
         File reports = new File(Objects.requireNonNull(ExporterTest.class.getResource("/reports.json")).getFile());
         HttpResponse response = exporter.submitReports(reports);
