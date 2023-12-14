@@ -19,7 +19,7 @@ public class CurationReport implements CustomQuery {
     // language=cypher
     public final static String QUERY = " " +
             // Creation
-            "MATCH (per:Person)-[:author]->(ie:InstanceEdit)-[r:authored|reviewed]->(e:Event) " +
+            "MATCH (per:Person)-[:author]->(ie:InstanceEdit)-[r:authored|reviewed|edited|revised]-(e:Event) " +
             "WHERE per.orcidId IN $whitelist " +
             "RETURN per.orcidId AS orcid, ie.dateTime AS time, type(r) AS activity, e.stId AS stId, e:Pathway AS isPathway " +
 
