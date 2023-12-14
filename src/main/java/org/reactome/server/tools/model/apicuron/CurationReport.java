@@ -9,6 +9,7 @@ import org.reactome.server.graph.domain.result.CustomQuery;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Map;
 
 @Data
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
@@ -16,6 +17,12 @@ import java.time.format.DateTimeFormatter;
 public class CurationReport implements CustomQuery {
     //2013-07-17 01:35:07
     public final static DateTimeFormatter inputFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
+    public final static Map<String, String> activityMapping = Map.of(
+            "edited", "revised",
+            "deleted", "revised",
+            "revised", "revised"
+    );
     // language=cypher
     public final static String QUERY = " " +
             // Creation
@@ -29,8 +36,8 @@ public class CurationReport implements CustomQuery {
             "MATCH (per:Person)-[:author]->(ie:InstanceEdit)-[c:created]->(d:Deleted)-[:deletedInstance]->(di:DeletedInstance) " +
             "WHERE  " +
             "    per.orcidId IN $whitelist AND  " +
-            "    di.clazz in ['Pathway', 'TopLevelPathway', 'CellLineagePath', 'Reaction', 'BlackBoxEvent', 'Depolymerisation', 'FailedReaction', 'Polymerisation'] " +
-            "RETURN per.orcidId AS orcid, ie.dateTime AS time, 'deleted' as activity, di.deletedStId AS stId, di.clazz in ['Pathway', 'TopLevelPathway', 'CellLineagePath'] AS isPathway";
+            "    di.clazz IN ['Pathway', 'TopLevelPathway', 'CellLineagePath', 'Reaction', 'BlackBoxEvent', 'Depolymerisation', 'FailedReaction', 'Polymerisation'] " +
+            "RETURN per.orcidId AS orcid, ie.dateTime AS time, 'deleted' AS activity, di.deletedStId AS stId, di.clazz IN ['Pathway', 'TopLevelPathway', 'CellLineagePath'] AS isPathway";
 
     private String timestamp;
     private String activityTerm;
@@ -43,7 +50,10 @@ public class CurationReport implements CustomQuery {
 
         report.setCuratorOrcid(record.get("orcid").asString());
 
-        report.setActivityTerm(record.get("activity").asString() + "-" + (record.get("isPathway").asBoolean() ? "pathway" : "reaction"));
+        String activityType = record.get("activity").asString();
+        activityType = activityMapping.getOrDefault(activityType, activityType);
+
+        report.setActivityTerm(activityType + "-" + (record.get("isPathway").asBoolean() ? "pathway" : "reaction"));
 
         report.setTimestamp(LocalDateTime.parse(record.get("time").asString(), inputFormat).toString());
 
