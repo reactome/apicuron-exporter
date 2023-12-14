@@ -74,7 +74,7 @@ public class Exporter {
 
     public List<String> extractWhitelistedOrcid() throws IOException {
         return mapper.readValue(curators.getInputStream(), ReactomeCurators.class)
-                .getCurrent().stream()
+                .getAccepted().stream()
                 .map(ReactomeCurators.Curator::getOrcid)
                 .collect(Collectors.toList());
     }

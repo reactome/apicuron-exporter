@@ -1,40 +1,8 @@
 {
-  "current": [
-    {
-      "name": "Krishna Tiwari",
-      "orcid": "0000-0002-3699-0937"
-    },
-    {
-      "name": "Bruce May",
-      "orcid": "0000-0001-5193-0855"
-    },
+  "accepted": [
     {
       "name": "Lisa Matthews",
       "orcid": "0000-0001-5707-3065"
-    },
-    {
-      "name": "Karen Rothfels",
-      "orcid": "0000-0002-0705-7048"
-    },
-    {
-      "name": "Robin Haw",
-      "orcid": "0000-0002-2013-7835"
-    },
-    {
-      "name": "Veronica Shamovsky",
-      "orcid": "0000-0002-2187-2241"
-    },
-    {
-      "name": "Marija Orlic-Milacic",
-      "orcid": "0000-0002-3218-5631"
-    },
-    {
-      "name": "Ralf Stephan",
-      "orcid": "0000-0002-4650-631X"
-    },
-    {
-      "name": "Bijay Jassal",
-      "orcid": "0000-0002-5039-5405"
     },
     {
       "name": "Peter D'Eustachio",
@@ -43,6 +11,32 @@
     {
       "name": "Marc E Gillespie",
       "orcid": "0000-0002-5766-1702"
+    },
+    {
+      "name": "Ralf Stephan",
+      "orcid": "0000-0002-4650-631X"
+    },
+    {
+      "name": "Krishna Tiwari",
+      "orcid": "0000-0002-3699-0937"
+    },
+    {
+      "name": "Marija Orlic-Milacic",
+      "orcid": "0000-0002-3218-5631"
+    },
+    {
+      "name": "Bruce May",
+      "orcid": "0000-0001-5193-0855"
+    },
+    {
+      "name": "Veronica Shamovsky",
+      "orcid": "0000-0002-2187-2241"
+    }
+  ],
+  "refused": [
+    {
+      "name": "Karen Rothfels",
+      "orcid": "0000-0002-0705-7048"
     }
   ],
   "former": [
@@ -89,6 +83,14 @@
     {
       "name": "Birgit Meldal",
       "orcid": "0000-0003-4062-6158"
+    },
+    {
+      "name": "Robin Haw",
+      "orcid": "0000-0002-2013-7835"
+    },
+    {
+      "name": "Bijay Jassal",
+      "orcid": "0000-0002-5039-5405"
     }
   ]
 }

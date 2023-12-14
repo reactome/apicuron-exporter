@@ -10,7 +10,8 @@ import java.util.List;
 @Builder
 @Jacksonized
 public class ReactomeCurators {
-    private List<Curator> current;
+    private List<Curator> accepted;
+    private List<Curator> refused;
     private List<Curator> former;
 
     @Data
