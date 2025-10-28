@@ -18,7 +18,7 @@ pipeline {
         stage('Check GenerateGraphDatabaseAndAnalysisCore build succeeded') {
             steps {
                 script {
-                    utils.checkUpstreamBuildsSucceeded("GenerateGraphDatabaseAndAnalysisCore")
+                    utils.checkUpstreamBuildsSucceeded("GenerateGraphDatabase")
                 }
             }
         }
@@ -30,13 +30,13 @@ pipeline {
                 }
             }
         }
-        // Execute the jar file, producing interactions files for Human interactions and for all species interactions.
-        stage('Main: Run Interaction-Exporter') {
+        // Execute the jar file, producing a bulk upload to APICURON
+        stage('Main: Run apicuron-Exporter') {
             steps {
                 script {
                     sh "mkdir -p ${env.OUTPUT_FOLDER}"
                     withCredentials([usernamePassword(credentialsId: 'neo4jUsernamePassword', passwordVariable: 'pass', usernameVariable: 'user')]) {
-                        sh "java -Xmx${env.JAVA_MEM_MAX}m -jar target/apicuron-exporter-exec.jar"
+                        sh "java -Xmx${env.JAVA_MEM_MAX}m -jar target/apicuron-exporter-exec.jar --spring.neo4j.authentication.username=$user --spring.neo4j.authentication.password=$pass"
                     }
                 }
             }
