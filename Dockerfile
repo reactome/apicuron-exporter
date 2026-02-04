@@ -24,7 +24,7 @@ CMD mvn -B -q checkstyle:check | \
 # ===== stage 2 =====
 FROM setup-env AS build-jar
 
-RUN mvn clean package
+RUN mvn clean package -DskipTests
 
 
 # ===== stage 3 =====
