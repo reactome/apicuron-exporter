@@ -1,4 +1,4 @@
-name: apicuron ci
+name: apicuron-exporter ci
 
 on:
     workflow_dispatch:  
@@ -84,7 +84,7 @@ jobs:
             - env:
                 AWS_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
                 AWS_REGISTRY_ALIAS: reactome
-                AWS_REPO: apicuron
+                AWS_REPO: apicuron-exporter
                 IMG_TAG: ${{ steps.get-hash.outputs.SHORT_SHA }}
               run: |
                 docker load --input /tmp/image.tar
