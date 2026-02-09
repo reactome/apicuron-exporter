@@ -38,23 +38,15 @@ pipeline {
                     sh "rm -f ${env.OUTPUT_FOLDER}/*"
                     withCredentials([file(credentialsId: 'Config', variable: 'CONFIG_FILE')]) {
                         def props = readProperties file: CONFIG_FILE
-                        withEnv([
-                            "DB_URI=bolt://${props.neo4jHostName}:${props.neo4jPort}",
-                            "DB_NAME=${props.neo4jDbName}",
-                            "DB_USER=${props.neo4jUserName}",
-                            "DB_PASS=${props.neo4jPassword}",
-                            "AC_SERVER=${props.apicuronServer}",
-                            "AC_KEY=${props.apicuronKey}"
-                        ]) {
-                            sh 'java -Xmx"${JAVA_MEM_MAX}"m -jar target/apicuron-exporter-exec.jar \
-                                --uri "$DB_URI" \
-                                --database "$DB_NAME" \
-                                --user "$DB_USER" \
-                                --password "$DB_PASS" \
-                                --server "$AC_SERVER" \
-                                --key "$AC_KEY" \
-                                --output "${OUTPUT_FOLDER}/report.json"'
-                        }
+                        def pass = props.neo4jPassword.replace('$', '\\$')
+                        sh """java -Xmx${env.JAVA_MEM_MAX}m -jar target/apicuron-exporter-exec.jar \
+                            --uri bolt://${props.neo4jHostName}:${props.neo4jPort} \
+                            --database ${props.neo4jDbName} \
+                            --user ${props.neo4jUserName} \
+                            --password ${pass} \
+                            --server ${props.apicuronServer} \
+                            --key ${props.apicuronKey} \
+                            --output ${env.OUTPUT_FOLDER}/report.json"""
                     }
                 }
             }
