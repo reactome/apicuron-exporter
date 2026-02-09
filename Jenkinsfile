@@ -39,13 +39,13 @@ pipeline {
                     withCredentials([file(credentialsId: 'Config', variable: 'CONFIG_FILE')]) {
                         def props = readProperties file: CONFIG_FILE
                         sh """java -Xmx${env.JAVA_MEM_MAX}m -jar target/apicuron-exporter-exec.jar \
-                            --uri bolt://${props.neo4jHostName}:${props.neo4jPort} \
-                            --database ${props.neo4jDbName} \
-                            --user ${props.neo4jUserName} \
-                            --password ${props.neo4jPassword} \
-                            --server ${props.apicuronServer} \
-                            --key ${props.apicuronKey} \
-                            --output ${env.OUTPUT_FOLDER}/report.json"""
+                            --uri=bolt://${props.neo4jHostName}:${props.neo4jPort} \
+                            --database=${props.neo4jDbName} \
+                            --user=${props.neo4jUserName} \
+                            --password=${props.neo4jPassword} \
+                            --server=${props.apicuronServer} \
+                            --key=${props.apicuronKey} \
+                            --output=${env.OUTPUT_FOLDER}/report.json"""
                     }
                 }
             }
