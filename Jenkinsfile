@@ -42,7 +42,7 @@ pipeline {
                             --uri=bolt://${props.neo4jHostName}:${props.neo4jPort} \
                             --database=${props.neo4jDbName} \
                             --user=${props.neo4jUserName} \
-                            --password=${props.neo4jPassword} \
+                            --password=\'${props.neo4jPassword}\' \
                             --server=${props.apicuronServer} \
                             --key=${props.apicuronKey} \
                             --output=${env.OUTPUT_FOLDER}/report.json"""
@@ -50,5 +50,15 @@ pipeline {
                 }
             }
         }
+        stage('Post: Archive Outputs'){
+			steps{
+				script{
+					// Shared library maintained at 'release-jenkins-utils' repository.
+					def currentRelease = utils.getReleaseVersion()
+					def s3Path = "${env.S3_RELEASE_DIRECTORY_URL}/${currentRelease}/apicuron-exporter"
+					sh "aws s3 --no-progress cp ${env.OUTPUT_FOLDER}/report.json $s3Path/data/"
+				}
+			}
+		}
     }
 }
