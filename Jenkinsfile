@@ -35,8 +35,16 @@ pipeline {
             steps {
                 script {
                     sh "mkdir -p ${env.OUTPUT_FOLDER}"
-                    withCredentials([usernamePassword(credentialsId: 'neo4jUsernamePassword', passwordVariable: 'pass', usernameVariable: 'user')]) {
-                        sh "java -Xmx${env.JAVA_MEM_MAX}m -jar target/apicuron-exporter-exec.jar --spring.neo4j.authentication.username=$user --spring.neo4j.authentication.password=$pass"
+                    withCredentials([file(credentialsId: 'Config', variable: 'CONFIG_FILE')]) {
+                        def props = readProperties file: CONFIG_FILE
+                        sh """java -Xmx${env.JAVA_MEM_MAX}m -jar target/apicuron-exporter-exec.jar \
+                            --uri bolt://${props.neo4jHostName}:${props.neo4jPort} \
+                            --database ${props.neo4jDbName} \
+                            --user ${props.neo4jUserName} \
+                            --password ${props.neo4jPassword} \
+                            --server ${props.apicuronServer} \
+                            --key ${props.apicuronKey} \
+                            --output ${props.apicuronOutput}"""
                     }
                 }
             }
