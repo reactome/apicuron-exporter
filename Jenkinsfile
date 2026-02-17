@@ -47,21 +47,23 @@ pipeline {
                     sh "rm -f ${env.OUTPUT_FOLDER}/*"
                     withCredentials([file(credentialsId: 'Config', variable: 'CONFIG_FILE')]) {
                         def props = readProperties file: CONFIG_FILE
+                        withEnv(["NEO4J_PASSWORD=\\${props.neo4jPassword}"]) {
                         sh """
                             docker run \\
-                               -v ${env.OUTPUT_FOLDER}:/output \\
+                               -v ${WORKSPACE}/${env.OUTPUT_FOLDER}:/output \\
                                --net=host \\
-                               -name ${CONT_NAME} \\
-                            ${ECR_URL}:latest \\
-                            /bin/bash -c "java -Xmx${env.JAVA_MEM_MAX}m -jar target/apicuron-exporter-exec.jar \
+                               --name ${CONT_NAME} \\
+                               ${ECR_URL}:latest \\
+                               /bin/bash -c "java -Xmx${env.JAVA_MEM_MAX}m -jar target/apicuron-exporter-exec.jar \
                                 --uri=bolt://${props.neo4jHostName}:${props.neo4jPort} \
                                 --database=${props.neo4jDbName} \
                                 --user=${props.neo4jUserName} \
-                                --password=\'${props.neo4jPassword}\' \
+                                --password=\$NEO4J_PASSWORD \
                                 --server=${props.apicuronServer} \
                                 --key=${props.apicuronKey} \
                                 --output=/output/report.json"
                            """
+                        }
                     }
                 }
             }
