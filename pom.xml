@@ -199,14 +199,4 @@
             </plugin>
         </plugins>
     </build>
-
-    <profiles>
-        <profile>
-            <id>production</id>
-            <properties>
-                <apicuron.key>${prod.apicuron.key}</apicuron.key>
-                <apicuron.server>https://apicuron.org</apicuron.server>
-            </properties>
-        </profile>
-    </profiles>
 </project>
